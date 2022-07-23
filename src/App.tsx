@@ -81,7 +81,7 @@ const App = () => {
       <DisplayOptionSelect setDisplayOptionFn={setDisplayOptionFn} />
       <div> {msCounter} </div>
       <img
-        src={"images/chessboard_4.png"}
+        src={"images/chessboard.png"}
         ref={inputImageRef}
       >
       </img>
