@@ -57,7 +57,7 @@ const App = () => {
       const end = performance.now()
       setMsCounter(end - start)
 
-    }, 1000);
+    }, 100);
     return () => clearInterval(interval);
   }, []);
 

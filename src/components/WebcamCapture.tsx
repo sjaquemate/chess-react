@@ -30,6 +30,9 @@ export const WebcamCapture = ({ webcamRef }: Props) => {
 
   return (
     <>
+      <div>
+        {JSON.stringify(devices)}
+      </div>
       <Select
         value={deviceId}
         label="Age"
