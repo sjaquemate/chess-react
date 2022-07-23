@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { useEffect, useRef, useState } from 'react';
 import { DisplayOptionSelect } from './components/DisplayOptionSelect';
+import { WebcamCapture } from './components/WebcamCapture';
 import { calculateFourierMagnitude, calculateLogarithmicMagnitude as logMagnitude } from './imageprocessing/fourier';
 import { convertToNormalizedImage, displayTensorToCanvasElement, getTensorFromImageElement, rgbToGrayScale as rgbToGray } from './imageprocessing/images';
 import { perspectiveTransform } from './imageprocessing/perspective';
@@ -33,7 +34,7 @@ const defaultProcessConfiguration: ProcessConfiguration = {
   imgSize: 128
 }
 
-export type DisplayOptionFn = (output: ProcessedOutput) => tf.Tensor2D 
+export type DisplayOptionFn = (output: ProcessedOutput) => tf.Tensor2D
 
 const App = () => {
 
@@ -42,30 +43,40 @@ const App = () => {
   const [processConfirugation, setProcessConfirugation] = useState(defaultProcessConfiguration)
   const [processedOutput, setProcessedOutput] = useState<ProcessedOutput>()
 
-  const [displayOptionFn, setDisplayOptionFn] = useState<DisplayOptionFn>() 
+  const [displayOptionFn, setDisplayOptionFn] = useState<DisplayOptionFn>()
   const [msCounter, setMsCounter] = useState(0)
-
+  
   useEffect(() => {
     const interval = setInterval(() => {
       const imageElement = inputImageRef.current
       if (!imageElement) return
+      if(imageElement.width === 0 || imageElement.height === 0) return 
 
       const start = performance.now()
       setProcessedOutput(processImage(imageElement, processConfirugation))
       const end = performance.now()
-      setMsCounter(end-start)
+      setMsCounter(end - start)
 
     }, 1000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      const webcam = webcamRef.current
+      if (!webcam) return
+      const image: string = webcam.getScreenshot()
+      setScreenshotImage(image)
+    }, 100);
+    return () => clearInterval(interval);
+  }, [])
+
+  useEffect(() => {
     const canvasElement = outputCanvasRef.current
     if (!canvasElement) return
 
     if (!processedOutput) return
-    if (!displayOptionFn) return  
-    console.log(displayOptionFn)
+    if (!displayOptionFn) return
 
     const tensor = displayOptionFn(processedOutput)
 
@@ -74,17 +85,23 @@ const App = () => {
 
   }, [processedOutput, displayOptionFn])
 
+  const [screenshotImage, setScreenshotImage] = useState<string>()
 
+  const webcamRef = useRef<any>(null)
 
   return (
     <div className="bg-blue-100 w-1/3 h-screen">
+
+      <WebcamCapture webcamRef={webcamRef} />
       <DisplayOptionSelect setDisplayOptionFn={setDisplayOptionFn} />
       <div> {msCounter} </div>
-      <img
-        src={"images/chessboard.png"}
-        ref={inputImageRef}
-      >
-      </img>
+      <div className="absolute invisible">
+        <img
+          src={screenshotImage} // {process.env.PUBLIC_URL + "/images/chessboard.png"}
+          ref={inputImageRef}
+        >
+        </img>
+      </div>
       <canvas
         ref={outputCanvasRef}
       >
