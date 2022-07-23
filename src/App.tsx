@@ -90,11 +90,11 @@ const App = () => {
   const webcamRef = useRef<any>(null)
 
   return (
-    <div className="bg-blue-100 w-1/3 h-screen">
+    <div className="bg-white h-screen">
 
-      <WebcamCapture webcamRef={webcamRef} />
-      <DisplayOptionSelect setDisplayOptionFn={setDisplayOptionFn} />
       <div> {msCounter} </div>
+      <DisplayOptionSelect setDisplayOptionFn={setDisplayOptionFn} />
+      <WebcamCapture webcamRef={webcamRef} />
       <div className="absolute invisible">
         <img
           src={screenshotImage} // {process.env.PUBLIC_URL + "/images/chessboard.png"}
@@ -102,10 +102,13 @@ const App = () => {
         >
         </img>
       </div>
+      <div className="absolute w-1/2 h-1/2">
+
       <canvas
         ref={outputCanvasRef}
-      >
+        >
       </canvas>
+        </div>
     </div>
   );
 }
