@@ -2,19 +2,18 @@ import { MenuItem, Select } from "@mui/material";
 import React from "react";
 import { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
-
-const videoConstraints = {
-  width: 1280,
-  height: 720,
-  facingMode: "user"
-}
+import FlipCameraAndroidIcon from '@mui/icons-material/FlipCameraAndroid';
+import { useResizeDetector } from "react-resize-detector";
 
 interface Props {
-  webcamRef: any | null
+  setPreviewImage: (image: string) => void
 }
-export const WebcamCapture = ({ webcamRef }: Props) => {
-  const [deviceId, setDeviceId] = useState<string>()
+export const WebcamCapture = ({ setPreviewImage }: Props) => {
+  // const [deviceId, setDeviceId] = useState<string>()
   const [devices, setDevices] = useState<any[]>([]);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user")
+
+  const webcamRef = useRef<any>()
 
   const handleDevices = React.useCallback(
     (mediaDevices: any) =>
@@ -28,31 +27,59 @@ export const WebcamCapture = ({ webcamRef }: Props) => {
     [handleDevices]
   )
 
+  const videoConstraints: MediaTrackConstraints = {
+    width: 1280,
+    height: 720,
+    facingMode: facingMode,
+  }
+
+  const { width, height, ref } = useResizeDetector();
+  type CameraPadding = {
+    top: number, 
+    left: number,
+    bottom: number, 
+    right: number,
+  }
+  const [hi, setHi] = useState("")
+  useEffect( () => {
+    const left = Math.floor(width ? 30 : 0)
+    console.log(left)
+    setHi(`absolute top-0 left-0 w-full h-full 
+    border-l-[${left}px] border-black border-opacity-50`)
+    
+  }, [width])
+
   return (
     <>
-      <div>
+      {/* <div>
         {JSON.stringify(devices)}
+      </div> */}
+      <div className="relative" ref={ref}>
+        <Webcam
+          audio={false}
+          // height={720}
+          // width={1280}
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          videoConstraints={videoConstraints}
+          mirrored
+        />
+        {/* <div className={hi}>  */}
+         
+         {/* </div> */}
+        {/* <button onClick={capture}>Capture photo</button> */}
+
+        <div className="">
+        <Select
+          value={facingMode}
+          label="facing mode"
+          onChange={(e) => setFacingMode(e.target.value as "user" | "environment")}
+          >
+          <MenuItem value={"user"}>user</MenuItem>
+          <MenuItem value={"environment"}>env</MenuItem>
+        </Select>
+          </div>
       </div>
-      <Select
-        value={deviceId}
-        label="Age"
-        onChange={(e) => setDeviceId(e.target.value)}
-      >
-        {devices.map( device => (
-          <MenuItem value={device.deviceId}>{device.label}</MenuItem>
-        ))}
-        
-      </Select>
-      <Webcam
-        audio={false}
-        // height={720}
-        // width={1280}
-        ref={webcamRef}
-        screenshotFormat="image/jpeg"
-        videoConstraints={deviceId ? {deviceId: deviceId, ...videoConstraints} : videoConstraints}
-        mirrored
-      />
-      {/* <button onClick={capture}>Capture photo</button> */}
     </>
   )
 }

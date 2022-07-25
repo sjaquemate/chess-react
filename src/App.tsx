@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs-core';
+import EasyWebWorker from 'easy-web-worker';
 import { useEffect, useRef, useState } from 'react';
 import { DisplayOptionSelect } from './components/DisplayOptionSelect';
 import { WebcamCapture } from './components/WebcamCapture';
@@ -40,36 +41,41 @@ const App = () => {
 
   const inputImageRef = useRef<HTMLImageElement>(null)
   const outputCanvasRef = useRef<HTMLCanvasElement>(null)
+  const [previewImage, setPreviewImage] = useState<string>()
   const [processConfirugation, setProcessConfirugation] = useState(defaultProcessConfiguration)
   const [processedOutput, setProcessedOutput] = useState<ProcessedOutput>()
 
   const [displayOptionFn, setDisplayOptionFn] = useState<DisplayOptionFn>()
   const [msCounter, setMsCounter] = useState(0)
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const imageElement = inputImageRef.current
-      if (!imageElement) return
-      if(imageElement.width === 0 || imageElement.height === 0) return 
 
-      const start = performance.now()
-      setProcessedOutput(processImage(imageElement, processConfirugation))
-      const end = performance.now()
-      setMsCounter(end - start)
+  const backgroundWorker = new EasyWebWorker<number, string>((easyWorker) => {
+    easyWorker.onMessage((message) => {
+      const { payload } = message;
 
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
+      message.resolve(`this is  a message from the worker: ${payload}`);
+    });
+  });
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const webcam = webcamRef.current
-      if (!webcam) return
-      const image: string = webcam.getScreenshot()
-      setScreenshotImage(image)
-    }, 100);
-    return () => clearInterval(interval);
-  }, [])
+  // useEffect(() => {
+
+  //   const interval = setInterval(() => {
+  //     const messageResult = backgroundWorker.override(5)
+  //     messageResult.then(m => {
+  //       console.log(m)
+  //     })
+
+  //     // const imageElement = inputImageRef.current
+  //     // if (!imageElement) return
+  //     // if(imageElement.width === 0 || imageElement.height === 0) return 
+
+  //     // const start = performance.now()
+  //     // setProcessedOutput(processImage(imageElement, processConfirugation))
+  //     // const end = performance.now()
+  //     // setMsCounter(end - start)
+
+  //   }, 100);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {
     const canvasElement = outputCanvasRef.current
@@ -85,30 +91,30 @@ const App = () => {
 
   }, [processedOutput, displayOptionFn])
 
-  const [screenshotImage, setScreenshotImage] = useState<string>()
-
-  const webcamRef = useRef<any>(null)
-
   return (
-    <div className="bg-white h-screen">
+    <div className="bg-white flex flex-col">
 
-      <div> {msCounter} </div>
+      <div className="">
+        <WebcamCapture setPreviewImage={setPreviewImage} />
+      </div>
+
       <DisplayOptionSelect setDisplayOptionFn={setDisplayOptionFn} />
-      <WebcamCapture webcamRef={webcamRef} />
-      <div className="absolute invisible">
+      <div className="font-bold"> {msCounter} </div>
+
+      <div className="">
         <img
-          src={screenshotImage} // {process.env.PUBLIC_URL + "/images/chessboard.png"}
+          src={process.env.PUBLIC_URL + "/images/chessboard.png"}
           ref={inputImageRef}
         >
         </img>
       </div>
       <div className="absolute w-1/2 h-1/2">
 
-      <canvas
-        ref={outputCanvasRef}
+        <canvas
+          ref={outputCanvasRef}
         >
-      </canvas>
-        </div>
+        </canvas>
+      </div>
     </div>
   );
 }
