@@ -1,19 +1,18 @@
 import { MenuItem, Select } from "@mui/material"
 import { useEffect, useState } from "react"
-import { DisplayOptionFn, ProcessedOutput } from "../App"
+import { DisplayOptionFn, ProcessedOutput } from "./ChessboardDetector"
 
 interface Props {
   setDisplayOptionFn: React.Dispatch<React.SetStateAction<DisplayOptionFn | undefined>>
 }
 export const DisplayOptionSelect = (props: Props) => {
 
-    type DisplayOptionLabel = "gray" | "fourier" | "warped"
-    const [displayOptionLabel, setDisplayOptionLabel] = useState<DisplayOptionLabel>("gray") 
+    const [displayOptionLabel, setDisplayOptionLabel] = useState<string>("gray") 
 
-    const displayOptions: {label: DisplayOptionLabel, fn: DisplayOptionFn}[] = [
-      { label: "warped", fn: (output: ProcessedOutput) => output.warped },
+    const displayOptions: {label: string, fn: DisplayOptionFn}[] = [
       { label: "gray", fn: (output: ProcessedOutput) => output.imgGray },
       { label: "fourier", fn: (output: ProcessedOutput) => output.imgFourierLogMagnitude },
+      { label: "fourier center", fn: (output: ProcessedOutput) => output.imgMagnitudeCenter },
     ]
 
     useEffect( () => {
@@ -25,8 +24,7 @@ export const DisplayOptionSelect = (props: Props) => {
         value={displayOptionLabel}
         label="Output"
         onChange={(e) => {
-          const value = e.target.value as DisplayOptionLabel
-          setDisplayOptionLabel(value)
+          setDisplayOptionLabel(e.target.value)
         }}
       >
         {

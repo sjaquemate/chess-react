@@ -1,5 +1,5 @@
 import { MenuItem, Select } from "@mui/material";
-import React from "react";
+import React, { useCallback } from "react";
 import { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import FlipCameraAndroidIcon from '@mui/icons-material/FlipCameraAndroid';
@@ -14,6 +14,23 @@ export const WebcamCapture = ({ setPreviewImage }: Props) => {
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user")
 
   const webcamRef = useRef<any>()
+
+  const capture = React.useCallback(
+    () => {
+      const webcam = webcamRef.current
+      if(!webcam) return 
+      const image: string = webcam.getScreenshot()
+      setPreviewImage(image)
+    },
+    [webcamRef]
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      capture()
+    }, 100)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleDevices = React.useCallback(
     (mediaDevices: any) =>
@@ -35,18 +52,18 @@ export const WebcamCapture = ({ setPreviewImage }: Props) => {
 
   const { width, height, ref } = useResizeDetector();
   type CameraPadding = {
-    top: number, 
+    top: number,
     left: number,
-    bottom: number, 
+    bottom: number,
     right: number,
   }
   const [hi, setHi] = useState("")
-  useEffect( () => {
+  useEffect(() => {
     const left = Math.floor(width ? 30 : 0)
     console.log(left)
     setHi(`absolute top-0 left-0 w-full h-full 
     border-l-[${left}px] border-black border-opacity-50`)
-    
+
   }, [width])
 
   return (
@@ -65,20 +82,20 @@ export const WebcamCapture = ({ setPreviewImage }: Props) => {
           mirrored
         />
         {/* <div className={hi}>  */}
-         
-         {/* </div> */}
+
+        {/* </div> */}
         {/* <button onClick={capture}>Capture photo</button> */}
 
         <div className="">
-        <Select
-          value={facingMode}
-          label="facing mode"
-          onChange={(e) => setFacingMode(e.target.value as "user" | "environment")}
+          <Select
+            value={facingMode}
+            label="facing mode"
+            onChange={(e) => setFacingMode(e.target.value as "user" | "environment")}
           >
-          <MenuItem value={"user"}>user</MenuItem>
-          <MenuItem value={"environment"}>env</MenuItem>
-        </Select>
-          </div>
+            <MenuItem value={"user"}>user</MenuItem>
+            <MenuItem value={"environment"}>env</MenuItem>
+          </Select>
+        </div>
       </div>
     </>
   )

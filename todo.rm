@@ -1,0 +1,5 @@
+[ ] extract magnitude quadrants and get peaks
+[ ] apply transform based on points, performs corners and extract list of peaks.
+[ ] sort list of peaks and apply custom houghtransform, and extract 
+    line of lines.
+[ ] 
