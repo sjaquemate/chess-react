@@ -73,7 +73,7 @@ const processImage = (imgRGB: tf.Tensor3D,
 
   const k = 5
   
-  const kernel = tf.ones([5, 5]).div(100000000000000000000000000) as tf.Tensor2D // createCircularMask([k, k], -1, k/2)
+  let kernel = createCircularMask([k, k], -1, k/2).div(100000000000000000000000000) as tf.Tensor2D // 
   // kernel.print()
   const e = 0.000000001
   const cornersPlusNoise = corners // corners.add(tf.randomUniform(corners.shape, -e, +e)) as tf.Tensor2D
@@ -161,8 +161,8 @@ export const ChessboardDetector = ({ previewImage, setMs }: Props) => {
 
     <div className="absolute invisible">
       <img
-        src={process.env.PUBLIC_URL + "/images/chessboard.png"}
-        // src={previewImage}
+        // src={process.env.PUBLIC_URL + "/images/chessboard.png"}
+        src={previewImage}
         ref={inputImageRef}
       >
       </img>

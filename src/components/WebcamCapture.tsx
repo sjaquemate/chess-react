@@ -11,7 +11,7 @@ interface Props {
 export const WebcamCapture = ({ setPreviewImage }: Props) => {
   // const [deviceId, setDeviceId] = useState<string>()
   const [devices, setDevices] = useState<any[]>([]);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("user")
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment")
 
   const webcamRef = useRef<any>()
 
